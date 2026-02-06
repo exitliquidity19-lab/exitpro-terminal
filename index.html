@@ -3,124 +3,155 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <meta name="theme-color" content="#000000"/>
   <title>EXIT PRO Swap</title>
-  
-  <script src="https://terminal.jup.ag/main.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: { extend: { backdropBlur: { xs: '2px' } } }
-    }
-  </script>
-
+  <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.js"></script>
+  <script src="https://unpkg.com/bs58@latest/index.js"></script> <!-- untuk base58 decode -->
   <style>
-    body {
-      background: linear-gradient(to bottom right, #000, #0f0f1a, #1a0f2e);
-      margin: 0; padding: 0;
-      height: 100vh; overflow: hidden;
-      font-family: system-ui, -apple-system, sans-serif;
+    body { 
+      background: linear-gradient(to bottom right, #000, #0f0f1a, #1a0f2e); 
+      color: #e5e7eb; font-family: system-ui, sans-serif; margin:0; padding:0; height:100vh; overflow:hidden;
     }
-    .glass {
-      background: rgba(20, 20, 35, 0.78);
-      backdrop-filter: blur(14px);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 16px;
-    }
+    .glass { background: rgba(20,20,35,0.8); backdrop-filter: blur(14px); border:1px solid rgba(255,255,255,0.08); border-radius:16px; }
     .glow-green { box-shadow: 0 0 28px rgba(2,192,118,0.4); }
-
-    #integrated-terminal { height: 100%; width: 100%; }
-
-    /* Aggressive hide/ganti Jupiter branding */
-    [class*="powered-by"],
-    [class*="PoweredBy"],
-    [class*="jupiter-branding"],
-    [class*="footer"],
-    div[contains(text(),'Jupiter')],
-    div:where(:has(> span:contains('Jupiter'))),
-    .jupiter-terminal-footer,
-    [data-testid*="jupiter"],
-    img[src*="jup.ag"],
-    svg[class*="jupiter-logo"],
-    .branding-container,
-    footer, .footer-text,
-    p[contains(text(),'Powered by Jupiter')],
-    [style*="jupiter"] {
-      display: none !important;
-      visibility: hidden !important;
-      height: 0 !important;
-      min-height: 0 !important;
-      opacity: 0 !important;
-      pointer-events: none !important;
-    }
-
-    /* Override text jika masih muncul via ::after atau span */
-    .jupiter-terminal *::after,
-    .jupiter-terminal *::before {
-      content: none !important;
-    }
-
-    /* Custom branding replacement (opsional: tambah text EXIT PRO di footer terminal jika mau) */
-    #integrated-terminal::after {
-      content: "EXIT PRO • Powered by Jupiter Aggregator"; /* Ganti jadi ini kalau mau credit tetap ada tapi custom */
-      display: block;
-      text-align: center;
-      font-size: 0.75rem;
-      color: #4ade80;
-      margin-top: 8px;
-      opacity: 0.6;
-    }
-
-    @media (max-width: 640px) {
-      body { font-size: 14px; }
-      nav { padding: 0.75rem 1rem; }
-    }
+    input, button { transition: all 0.2s; }
   </style>
 </head>
-<body class="text-gray-100 flex flex-col min-h-screen">
+<body class="flex flex-col min-h-screen">
 
-  <!-- Top Bar dengan logo custom kamu -->
-  <nav class="glass fixed top-0 left-0 right-0 z-50 border-b border-gray-800/50 px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-2.5">
-      <img 
-        src="logo.png"  <!-- GANTI INI: upload logo kamu ke Netlify, misal assets/logo.png atau link full https://... -->
-        alt="EXIT PRO" 
-        class="h-8 w-8 rounded-full object-cover border border-green-500/30 glow-green"
-      />
-      <span class="text-lg font-bold tracking-tight text-green-400">EXIT PRO</span>
+  <nav class="glass fixed top-0 w-full z-50 px-4 py-3 flex justify-between items-center border-b border-gray-800/50">
+    <div class="flex items-center gap-3">
+      <img src="assets/logo.png" alt="EXIT PRO" class="h-9 w-9 rounded-full object-cover glow-green"> <!-- upload logo kamu di assets/ -->
+      <span class="text-xl font-bold text-green-400">EXIT PRO</span>
     </div>
-    <button id="connect-btn" class="bg-green-600 hover:bg-green-500 px-4 py-1.5 rounded-full text-sm font-medium transition">
-      Connect
-    </button>
+    <button id="connect-btn" class="bg-green-600 hover:bg-green-500 px-5 py-2 rounded-full font-medium">Connect Wallet</button>
   </nav>
 
-  <!-- Main: Full terminal -->
-  <main class="flex-1 pt-16 px-3 sm:px-5 pb-4 overflow-hidden">
-    <div class="glass flex-1 overflow-hidden glow-green h-full">
-      <div id="integrated-terminal" class="w-full h-full"></div>
-    </div>
+  <main class="flex-1 pt-20 px-4 flex items-center justify-center">
+    <div class="glass p-6 w-full max-w-md glow-green">
+      <h2 class="text-2xl font-bold mb-6 text-center text-green-400">Swap Tokens</h2>
 
-    <!-- Small note di bawah (opsional, bisa dihapus) -->
-    <div class="mt-3 text-center text-xs text-gray-600">
-      Solana DEX • Fast & Secure Swaps
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">From (Input)</label>
+          <input id="fromAmount" type="number" placeholder="0.0" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-lg focus:outline-none focus:border-green-500">
+          <select id="fromToken" class="mt-2 w-full bg-gray-900 border border-gray-700 rounded-lg p-2">
+            <option value="So11111111111111111111111111111111111111112">SOL</option>
+            <option value="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v">USDC</option>
+            <!-- Tambah token lain dari https://tokens.jup.ag/tokens -->
+          </select>
+        </div>
+
+        <div class="text-center text-green-400 text-2xl">↓</div>
+
+        <div>
+          <label class="block text-sm text-gray-400 mb-1">To (Output)</label>
+          <input id="toAmount" type="text" placeholder="0.0" readonly class="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-lg">
+          <select id="toToken" class="mt-2 w-full bg-gray-900 border border-gray-700 rounded-lg p-2">
+            <option value="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v">USDC</option>
+            <option value="So11111111111111111111111111111111111111112">SOL</option>
+          </select>
+        </div>
+
+        <button id="quoteBtn" class="w-full bg-green-600 hover:bg-green-500 py-3 rounded-lg font-bold text-lg">Get Quote</button>
+        <button id="swapBtn" disabled class="w-full bg-green-700 opacity-50 py-3 rounded-lg font-bold text-lg cursor-not-allowed">Swap</button>
+
+        <div id="status" class="text-center text-sm text-gray-400 mt-4"></div>
+      </div>
     </div>
   </main>
 
   <script>
-    window.Jupiter.init({
-      displayMode: "integrated",
-      integratedTargetId: "integrated-terminal",
-      endpoint: "https://api.mainnet-beta.solana.com",
-      referralAccount: "9HdCWUEgEajC47Hni4YvUFdoCzvncsMscXixMsmhNYmH",
-      referralFeeBps: 50,
-      theme: 'dark',
-      enableReferral: true,
-    });
+    const API_BASE = 'https://quote-api.jup.ag/v6'; // atau ultra: https://ultra-api.jup.ag (cek docs terbaru)
+    const REFERRAL_ACCOUNT = '9HdCWUEgEajC47Hni4YvUFdoCzvncsMscXixMsmhNYmH';
+    const REFERRAL_FEE_BPS = 50; // 0.5%
 
-    document.getElementById('connect-btn').addEventListener('click', () => {
-      alert('Connect wallet: Phantom / Backpack / Solflare (implementasi wallet adapter nanti)');
-    });
+    let walletPublicKey = null;
+    let quoteData = null;
+
+    // Connect wallet sederhana (Phantom only untuk contoh ini)
+    document.getElementById('connect-btn').onclick = async () => {
+      if (window.solana && window.solana.isPhantom) {
+        try {
+          const resp = await window.solana.connect();
+          walletPublicKey = resp.publicKey.toString();
+          document.getElementById('connect-btn').textContent = `Connected: \( {walletPublicKey.slice(0,4)}... \){walletPublicKey.slice(-4)}`;
+          document.getElementById('swapBtn').disabled = false;
+          document.getElementById('swapBtn').classList.remove('opacity-50', 'cursor-not-allowed');
+          document.getElementById('swapBtn').classList.add('bg-green-600', 'hover:bg-green-500');
+        } catch (err) {
+          alert('Wallet connect failed: ' + err.message);
+        }
+      } else {
+        alert('Install Phantom wallet!');
+      }
+    };
+
+    // Get Quote
+    document.getElementById('quoteBtn').onclick = async () => {
+      const inputAmount = document.getElementById('fromAmount').value;
+      if (!inputAmount || inputAmount <= 0) return alert('Enter amount');
+
+      const inputMint = document.getElementById('fromToken').value;
+      const outputMint = document.getElementById('toToken').value;
+
+      const status = document.getElementById('status');
+      status.textContent = 'Fetching best route...';
+
+      try {
+        const url = `\( {API_BASE}/quote?inputMint= \){inputMint}&outputMint=\( {outputMint}&amount= \){Math.floor(inputAmount * 1e9)}&slippageBps=50&referralFeeBps=\( {REFERRAL_FEE_BPS}&referralAccount= \){REFERRAL_ACCOUNT}`;
+        const res = await fetch(url);
+        quoteData = await res.json();
+
+        if (quoteData.error) throw new Error(quoteData.error);
+
+        document.getElementById('toAmount').value = (quoteData.outAmount / 1e6).toFixed(4); // adjust decimals
+        status.innerHTML = `Best route: ${quoteData.routePlan.map(r => r.ammLabel).join(' → ')}<br>Fee: ${(quoteData.otherAmountThreshold / 1e9).toFixed(6)} SOL est.`;
+        document.getElementById('swapBtn').disabled = false;
+      } catch (err) {
+        status.textContent = 'Error: ' + err.message;
+      }
+    };
+
+    // Execute Swap
+    document.getElementById('swapBtn').onclick = async () => {
+      if (!walletPublicKey || !quoteData) return;
+
+      const status = document.getElementById('status');
+      status.textContent = 'Preparing swap...';
+
+      try {
+        const res = await fetch(`${API_BASE}/swap`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            quoteResponse: quoteData,
+            userPublicKey: walletPublicKey,
+            wrapAndUnwrapSol: true,
+            referralAccount: REFERRAL_ACCOUNT,
+            referralFeeBps: REFERRAL_FEE_BPS,
+            computeUnitPriceMicroLamports: 100000 // priority fee optional
+          })
+        });
+
+        const { swapTransaction } = await res.json();
+
+        // Deserialize & sign
+        const txBuf = Uint8Array.from(atob(swapTransaction), c => c.charCodeAt(0));
+        const tx = solanaWeb3.VersionedTransaction.deserialize(txBuf);
+
+        // Sign dengan wallet (Phantom)
+        const signedTx = await window.solana.signTransaction(tx); // atau signAllTransactions kalau multi
+
+        // Kirim tx (bisa via Jupiter atau RPC sendiri)
+        const connection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
+        const txid = await connection.sendRawTransaction(signedTx.serialize(), { skipPreflight: true });
+
+        status.innerHTML = `Swap submitted! TX: <a href="https://solscan.io/tx/\( {txid}" target="_blank" class="text-green-400"> \){txid.slice(0,8)}...</a>`;
+      } catch (err) {
+        status.textContent = 'Swap failed: ' + err.message;
+      }
+    };
   </script>
 </body>
 </html>
