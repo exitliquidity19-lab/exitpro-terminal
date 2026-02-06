@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>$EXIT | Pro Terminal - Ave Style</title>
+  <script src="https://terminal.jup.ag/main.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: { extend: { backdropBlur: { xs: '2px' } } }
+    }
+  </script>
+  <style>
+    body { background: linear-gradient(to bottom right, #000, #0f0f1a, #1a0f2e); }
+    .glass { background: rgba(15, 15, 26, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.08); }
+    .glow-green { box-shadow: 0 0 20px rgba(2,192,118,0.3); }
+  </style>
+</head>
+<body class="text-gray-100 min-h-screen font-sans overflow-hidden">
+  <!-- Navbar -->
+  <nav class="glass fixed top-0 w-full z-50 border-b border-gray-800 px-6 py-3 flex justify-between items-center">
+    <div class="flex items-center gap-3">
+      <img src="assets/exit-coin.png" alt="EXIT" class="h-8 rounded-full" />
+      <span class="text-xl font-bold">EXIT PRO</span>
+    </div>
+    <button id="connect-btn" class="bg-green-600 hover:bg-green-500 px-5 py-2 rounded-full font-medium transition">Connect Wallet</button>
+  </nav>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-16 h-screen px-4 lg:px-6">
+    <!-- Left Stats -->
+    <aside class="lg:col-span-3 glass rounded-xl p-5 overflow-y-auto">
+      <h2 class="text-lg font-bold mb-4">Token Stats</h2>
+      <div class="space-y-4">
+        <div><span class="text-gray-400 text-sm">Market Cap</span><p class="text-xl font-bold">$1.24M</p></div>
+        <div><span class="text-gray-400 text-sm">Liquidity</span><p class="text-xl font-bold">$450K</p></div>
+        <div><span class="text-gray-400 text-sm">Holders</span><p class="text-xl font-bold">8.4K</p></div>
+        <div><span class="text-gray-400 text-sm">24h Vol</span><p class="text-xl font-bold text-green-400">$89K</p></div>
+      </div>
+      <div class="mt-6">
+        <h3 class="text-sm font-semibold mb-2">CA (Solana)</h3>
+        <code class="bg-gray-900 p-2 rounded block text-xs break-all">So11111111111111111111111111111111111111112</code>
+      </div>
+    </aside>
+
+    <!-- Center Chart -->
+    <main class="lg:col-span-6 flex flex-col gap-4">
+      <div class="glass rounded-xl p-6 glow-green">
+        <div class="flex items-baseline gap-6">
+          <div>
+            <p class="text-5xl font-extrabold text-green-400">$0.00004218</p>
+            <p class="text-green-400 font-bold mt-1">+12.45% (24h)</p>
+          </div>
+          <div class="text-right">
+            <p class="text-sm text-gray-400">High / Low</p>
+            <p>$0.00004500 / $0.00003820</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="glass rounded-xl flex-1 overflow-hidden">
+        <iframe 
+          src="https://birdeye.so/tv-widget/So11111111111111111111111111111111111111112?chain=solana&viewMode=pair&chartInterval=1m&theme=dark" 
+          class="w-full h-full" loading="lazy"></iframe>
+      </div>
+
+      <div class="glass rounded-xl h-64 overflow-hidden">
+        <iframe src="https://solscan.io/token/So11111111111111111111111111111111111111112#transactions" class="w-full h-full" loading="lazy"></iframe>
+      </div>
+    </main>
+
+    <!-- Right Swap -->
+    <aside class="lg:col-span-3 glass rounded-xl flex flex-col">
+      <div class="p-5 border-b border-gray-800 font-bold">Swap Terminal</div>
+      <div id="integrated-terminal" class="flex-1"></div>
+    </aside>
+  </div>
+
+  <script>
+    window.Jupiter.init({
+      displayMode: "integrated",
+      integratedTargetId: "integrated-terminal",
+      endpoint: "https://api.mainnet-beta.solana.com",
+      referralAccount: "9HdCWUEgEajC47Hni4YvUFdoCzvncsMscXixMsmhNYmH",
+      referralFeeBps: 50,
+      theme: 'dark'
+    });
+
+    document.getElementById('connect-btn').addEventListener('click', () => {
+      alert('Connect wallet via Phantom / Backpack (implement later)');
+    });
+  </script>
+</body>
+</html>
