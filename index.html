@@ -8,22 +8,34 @@
   <style>
     body { 
       background: linear-gradient(to bottom right, #000, #0f0f1a, #1a0f2e); 
-      color: #e5e7eb; margin:0; padding:0; height:100vh; overflow:hidden; font-family: system-ui, sans-serif;
+      color: #e5e7eb; 
+      margin:0; 
+      padding:0; 
+      height:100vh; 
+      overflow:hidden; 
+      font-family: system-ui, -apple-system, sans-serif;
     }
-    .glass { background: rgba(20,20,35,0.8); backdrop-filter: blur(14px); border:1px solid rgba(255,255,255,0.08); border-radius:16px; }
-    .glow-green { box-shadow: 0 0 28px rgba(2,192,118,0.4); }
+    .glass { 
+      background: rgba(20,20,35,0.8); 
+      backdrop-filter: blur(14px); 
+      border:1px solid rgba(255,255,255,0.08); 
+      border-radius:16px; 
+    }
+    .glow-green { 
+      box-shadow: 0 0 28px rgba(2,192,118,0.4); 
+    }
   </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
-  <!-- Top Bar dengan logo -->
+  <!-- Top Bar dengan logo yang sesuai file di repo -->
   <nav class="glass fixed top-0 w-full z-50 px-4 py-3 flex justify-between items-center border-b border-gray-800/50">
     <div class="flex items-center gap-3">
       <img 
-        src="assets/logo.png" 
+        src="assets/exit-coin.png" 
         alt="EXIT PRO Logo" 
         class="h-9 w-9 rounded-full object-cover glow-green border border-green-500/30"
-        onerror="this.src='https://via.placeholder.com/36/10b981/000?text=E'; this.alt='Fallback Logo';" <!-- fallback kalau gagal load -->
+        onerror="this.src='https://via.placeholder.com/36/10b981/000?text=EXIT'; this.alt='Fallback Logo';"
       />
       <span class="text-xl font-bold text-green-400">EXIT PRO</span>
     </div>
@@ -44,8 +56,17 @@
 
       <!-- Placeholder untuk swap UI nanti -->
       <div class="space-y-4">
-        <input type="text" placeholder="Enter amount" class="w-full bg-gray-900 border border-gray-700 rounded-lg p-4 text-lg focus:outline-none focus:border-green-500" />
-        <button class="w-full bg-green-600 hover:bg-green-500 py-4 rounded-lg font-bold text-lg disabled:opacity-50" disabled>Swap (Coming Soon)</button>
+        <input 
+          type="text" 
+          placeholder="Enter amount" 
+          class="w-full bg-gray-900 border border-gray-700 rounded-lg p-4 text-lg focus:outline-none focus:border-green-500"
+        />
+        <button 
+          class="w-full bg-green-600 hover:bg-green-500 py-4 rounded-lg font-bold text-lg disabled:opacity-50" 
+          disabled
+        >
+          Swap (Coming Soon)
+        </button>
       </div>
     </div>
   </main>
@@ -68,29 +89,28 @@
           connectBtn.classList.add('opacity-70', 'cursor-default');
 
           alert(`Connected to Phantom! Public Key: ${publicKey}`);
-          // Nanti di sini bisa load balance, tampilkan UI swap full, dll.
         } catch (err) {
           console.error(err);
           alert('Connection failed: ' + (err.message || 'Unknown error'));
         }
       } else {
-        alert('Phantom wallet not detected! Please install Phantom extension: https://phantom.app/');
-        // Optional: window.open('https://phantom.app/', '_blank');
+        alert('Phantom wallet not detected!\nPlease install Phantom: https://phantom.app/');
       }
     });
 
-    // Auto-detect kalau sudah trusted (opsional)
+    // Auto-connect jika sudah trusted (opsional)
     window.addEventListener('load', async () => {
       if (window.solana && window.solana.isPhantom) {
         try {
           await window.solana.connect({ onlyIfTrusted: true });
-          // Jika sukses, auto-connect
           const publicKey = window.solana.publicKey.toString();
           pubkeySpan.textContent = `\( {publicKey.slice(0,6)}... \){publicKey.slice(-6)}`;
           walletInfo.classList.remove('hidden');
           connectBtn.textContent = 'Connected (Trusted)';
           connectBtn.disabled = true;
-        } catch {} // silent fail
+        } catch (err) {
+          // silent fail
+        }
       }
     });
   </script>
