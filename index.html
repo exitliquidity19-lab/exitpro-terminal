@@ -2,168 +2,256 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>NeonDEX Terminal</title>
+  <title>ExitPro Terminal</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <!-- Lightweight Charts -->
-  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
-
-  <!-- Futuristic Font -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+  <!-- Chart mock -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
+    :root {
+      --bg: #0b0e11;
+      --panel: #12161c;
+      --border: #1f2633;
+      --text: #eaecef;
+      --muted: #8b949e;
+      --green: #00ff9c;
+      --red: #ff4d4d;
+      --accent: #00b3ff;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
     body {
-      font-family: 'Orbitron', monospace;
-      background: #000;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
     }
-    .neon {
-      box-shadow: 0 0 10px #39FF14;
+
+    header {
+      height: 60px;
+      background: #0e1218;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
     }
-    .neon-purple {
-      box-shadow: 0 0 10px #8A2BE2;
+
+    header h1 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--accent);
     }
-    .glitch:hover {
-      text-shadow: 2px 0 #39FF14, -2px 0 #8A2BE2;
+
+    .wallet {
+      background: var(--panel);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px 1fr 320px;
+      height: calc(100vh - 60px);
+    }
+
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+      padding: 12px;
+    }
+
+    .sidebar h3 {
+      font-size: 13px;
+      margin-bottom: 10px;
+      color: var(--muted);
+    }
+
+    .token {
+      padding: 10px;
+      border-radius: 6px;
+      background: #0e1218;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+
+    .token:hover {
+      background: #161b22;
+    }
+
+    .main {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .stat {
+      background: #0e1218;
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .chart {
+      flex: 1;
+    }
+
+    .trade {
+      background: var(--panel);
+      border-left: 1px solid var(--border);
+      padding: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      font-size: 13px;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #0e1218;
+    }
+
+    .tab.buy {
+      color: var(--green);
+      border: 1px solid var(--green);
+    }
+
+    .tab.sell {
+      color: var(--red);
+      border: 1px solid var(--red);
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      background: #0e1218;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .buy-btn {
+      background: var(--green);
+      color: #000;
+    }
+
+    .sell-btn {
+      background: var(--red);
+      color: #000;
     }
   </style>
 </head>
+<body>
 
-<body class="text-green-400">
-
-<!-- HEADER -->
-<header class="flex items-center justify-between px-6 py-4 border-b border-green-500 neon">
-  <h1 class="text-2xl font-bold glitch">NeonDEX</h1>
-
-  <input
-    placeholder="Search Token Contract Address"
-    class="w-1/2 bg-black border border-purple-600 px-4 py-2 rounded neon-purple text-sm"
-  />
-
-  <button class="bg-green-500 text-black px-4 py-2 rounded neon hover:opacity-80">
-    Connect Wallet
-  </button>
+<header>
+  <h1>ExitPro Terminal</h1>
+  <div class="wallet">Wallet: Not Connected</div>
 </header>
 
-<!-- MAIN GRID -->
-<div class="grid grid-cols-12 gap-4 p-4">
+<div class="layout">
 
-  <!-- LEFT SIDEBAR -->
-  <aside class="col-span-12 md:col-span-2 border border-green-500 rounded p-3 neon">
-    <h2 class="mb-3 font-semibold glitch">🔥 Trending</h2>
-    <ul class="space-y-2 text-sm">
-      <li class="flex justify-between hover:text-purple-400">
-        <span>ETH</span><span>+3.2%</span>
-      </li>
-      <li class="flex justify-between hover:text-purple-400">
-        <span>PEPE</span><span>+12.4%</span>
-      </li>
-      <li class="flex justify-between hover:text-purple-400">
-        <span>SOL</span><span>-1.1%</span>
-      </li>
-      <li class="flex justify-between hover:text-purple-400">
-        <span>ARB</span><span>+5.9%</span>
-      </li>
-    </ul>
-  </aside>
+  <!-- LEFT -->
+  <div class="sidebar">
+    <h3>Watchlist</h3>
+    <div class="token">SOL / USDC</div>
+    <div class="token">BONK</div>
+    <div class="token">WIF</div>
+    <div class="token">JUP</div>
+  </div>
 
-  <!-- CHART -->
-  <main class="col-span-12 md:col-span-7 border border-green-500 rounded neon">
-    <div id="chart" class="h-[420px]"></div>
-  </main>
-
-  <!-- SWAP -->
-  <aside class="col-span-12 md:col-span-3 border border-purple-600 rounded p-4 neon-purple">
-    <h2 class="mb-4 font-semibold glitch">Swap</h2>
-
-    <div class="space-y-3">
-      <input placeholder="From (ETH)" class="w-full bg-black border px-3 py-2 rounded" />
-      <input placeholder="To (Token)" class="w-full bg-black border px-3 py-2 rounded" />
-
-      <div class="flex justify-between text-xs">
-        <span>Slippage</span>
-        <span>0.5%</span>
-      </div>
-
-      <input type="range" min="0" max="5" value="1" />
-
-      <div class="text-xs opacity-70">⛽ Gas Estimate: ~0.003 ETH</div>
-
-      <button class="w-full bg-green-500 text-black py-2 rounded neon hover:opacity-80">
-        Execute Swap
-      </button>
+  <!-- CENTER -->
+  <div class="main">
+    <div class="stats">
+      <div class="stat">Price<br><b>$123.45</b></div>
+      <div class="stat">Liquidity<br><b>$2.1M</b></div>
+      <div class="stat">Volume 24h<br><b>$890K</b></div>
+      <div class="stat">MCAP<br><b>$12M</b></div>
     </div>
-  </aside>
+
+    <div class="panel chart">
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="trade">
+    <div class="tabs">
+      <div class="tab buy">BUY</div>
+      <div class="tab sell">SELL</div>
+    </div>
+
+    <input placeholder="Amount (SOL)" />
+    <input placeholder="Slippage %" value="1" />
+
+    <button class="buy-btn">ONE CLICK BUY</button>
+    <br><br>
+    <button class="sell-btn">ONE CLICK SELL</button>
+  </div>
+
 </div>
 
-<!-- TRANSACTIONS -->
-<section class="p-4">
-  <div class="border border-green-500 rounded neon p-4">
-    <h2 class="mb-3 glitch">📜 Live Transactions</h2>
-
-    <table class="w-full text-sm">
-      <thead class="border-b border-green-500">
-        <tr>
-          <th class="text-left">Time</th>
-          <th>Type</th>
-          <th>Price</th>
-          <th>Amount</th>
-        </tr>
-      </thead>
-      <tbody class="opacity-90">
-        <tr>
-          <td>12:01:22</td>
-          <td class="text-green-400">Buy</td>
-          <td>$2,410</td>
-          <td>1.2 ETH</td>
-        </tr>
-        <tr>
-          <td>12:01:09</td>
-          <td class="text-red-400">Sell</td>
-          <td>$2,398</td>
-          <td>0.5 ETH</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
-
-<!-- CHART SCRIPT -->
 <script>
-  const chart = LightweightCharts.createChart(document.getElementById('chart'), {
-    layout: {
-      background: { color: '#000000' },
-      textColor: '#39FF14',
+  const ctx = document.getElementById('chart');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['1','2','3','4','5','6','7'],
+      datasets: [{
+        data: [10, 12, 11, 14, 13, 15, 16],
+        borderColor: '#00ff9c',
+        borderWidth: 2,
+        tension: 0.3
+      }]
     },
-    grid: {
-      vertLines: { color: '#222' },
-      horzLines: { color: '#222' },
-    },
-    width: document.getElementById('chart').clientWidth,
-    height: 420,
-  });
-
-  const series = chart.addCandlestickSeries({
-    upColor: '#39FF14',
-    downColor: '#8A2BE2',
-    borderVisible: false,
-    wickUpColor: '#39FF14',
-    wickDownColor: '#8A2BE2',
-  });
-
-  series.setData([
-    { time: '2025-02-01', open: 2200, high: 2300, low: 2150, close: 2250 },
-    { time: '2025-02-02', open: 2250, high: 2400, low: 2230, close: 2350 },
-    { time: '2025-02-03', open: 2350, high: 2450, low: 2300, close: 2400 },
-    { time: '2025-02-04', open: 2400, high: 2480, low: 2380, close: 2410 },
-  ]);
-
-  window.addEventListener('resize', () => {
-    chart.applyOptions({ width: document.getElementById('chart').clientWidth });
+    options: {
+      plugins: { legend: { display: false }},
+      scales: {
+        x: { display: false },
+        y: { display: false }
+      }
+    }
   });
 </script>
 
 </body>
-    </html>
+</html>
