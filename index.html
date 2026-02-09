@@ -1,118 +1,169 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>EXIT PRO Swap</title>
+  <title>NeonDEX Terminal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Lightweight Charts -->
+  <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+
+  <!-- Futuristic Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&display=swap" rel="stylesheet">
+
   <style>
-    body { 
-      background: linear-gradient(to bottom right, #000, #0f0f1a, #1a0f2e); 
-      color: #e5e7eb; 
-      margin:0; 
-      padding:0; 
-      height:100vh; 
-      overflow:hidden; 
-      font-family: system-ui, -apple-system, sans-serif;
+    body {
+      font-family: 'Orbitron', monospace;
+      background: #000;
     }
-    .glass { 
-      background: rgba(20,20,35,0.8); 
-      backdrop-filter: blur(14px); 
-      border:1px solid rgba(255,255,255,0.08); 
-      border-radius:16px; 
+    .neon {
+      box-shadow: 0 0 10px #39FF14;
     }
-    .glow-green { 
-      box-shadow: 0 0 28px rgba(2,192,118,0.4); 
+    .neon-purple {
+      box-shadow: 0 0 10px #8A2BE2;
+    }
+    .glitch:hover {
+      text-shadow: 2px 0 #39FF14, -2px 0 #8A2BE2;
     }
   </style>
 </head>
-<body class="flex flex-col min-h-screen">
 
-  <!-- Top Bar dengan logo yang sesuai file di repo -->
-  <nav class="glass fixed top-0 w-full z-50 px-4 py-3 flex justify-between items-center border-b border-gray-800/50">
-    <div class="flex items-center gap-3">
-      <img 
-        src="assets/exit-coin.png" 
-        alt="EXIT PRO Logo" 
-        class="h-9 w-9 rounded-full object-cover glow-green border border-green-500/30"
-        onerror="this.src='https://via.placeholder.com/36/10b981/000?text=EXIT'; this.alt='Fallback Logo';"
-      />
-      <span class="text-xl font-bold text-green-400">EXIT PRO</span>
-    </div>
-    <button id="connect-btn" class="bg-green-600 hover:bg-green-500 px-5 py-2 rounded-full font-medium transition">
-      Connect Wallet
-    </button>
-  </nav>
+<body class="text-green-400">
 
-  <!-- Main Content -->
-  <main class="flex-1 pt-20 px-4 flex items-center justify-center">
-    <div class="glass p-8 w-full max-w-lg glow-green text-center">
-      <h1 class="text-3xl font-bold mb-6 text-green-400">Welcome to EXIT PRO Swap</h1>
-      <p class="text-lg mb-8">Fast, secure token swaps on Solana. Connect your wallet to start.</p>
-      
-      <div id="wallet-info" class="text-sm text-gray-400 mb-4 hidden">
-        Connected: <span id="pubkey"></span>
-      </div>
+<!-- HEADER -->
+<header class="flex items-center justify-between px-6 py-4 border-b border-green-500 neon">
+  <h1 class="text-2xl font-bold glitch">NeonDEX</h1>
 
-      <!-- Placeholder untuk swap UI nanti -->
-      <div class="space-y-4">
-        <input 
-          type="text" 
-          placeholder="Enter amount" 
-          class="w-full bg-gray-900 border border-gray-700 rounded-lg p-4 text-lg focus:outline-none focus:border-green-500"
-        />
-        <button 
-          class="w-full bg-green-600 hover:bg-green-500 py-4 rounded-lg font-bold text-lg disabled:opacity-50" 
-          disabled
-        >
-          Swap (Coming Soon)
-        </button>
-      </div>
-    </div>
+  <input
+    placeholder="Search Token Contract Address"
+    class="w-1/2 bg-black border border-purple-600 px-4 py-2 rounded neon-purple text-sm"
+  />
+
+  <button class="bg-green-500 text-black px-4 py-2 rounded neon hover:opacity-80">
+    Connect Wallet
+  </button>
+</header>
+
+<!-- MAIN GRID -->
+<div class="grid grid-cols-12 gap-4 p-4">
+
+  <!-- LEFT SIDEBAR -->
+  <aside class="col-span-12 md:col-span-2 border border-green-500 rounded p-3 neon">
+    <h2 class="mb-3 font-semibold glitch">🔥 Trending</h2>
+    <ul class="space-y-2 text-sm">
+      <li class="flex justify-between hover:text-purple-400">
+        <span>ETH</span><span>+3.2%</span>
+      </li>
+      <li class="flex justify-between hover:text-purple-400">
+        <span>PEPE</span><span>+12.4%</span>
+      </li>
+      <li class="flex justify-between hover:text-purple-400">
+        <span>SOL</span><span>-1.1%</span>
+      </li>
+      <li class="flex justify-between hover:text-purple-400">
+        <span>ARB</span><span>+5.9%</span>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- CHART -->
+  <main class="col-span-12 md:col-span-7 border border-green-500 rounded neon">
+    <div id="chart" class="h-[420px]"></div>
   </main>
 
-  <script>
-    const connectBtn = document.getElementById('connect-btn');
-    const walletInfo = document.getElementById('wallet-info');
-    const pubkeySpan = document.getElementById('pubkey');
+  <!-- SWAP -->
+  <aside class="col-span-12 md:col-span-3 border border-purple-600 rounded p-4 neon-purple">
+    <h2 class="mb-4 font-semibold glitch">Swap</h2>
 
-    connectBtn.addEventListener('click', async () => {
-      if (window.solana && window.solana.isPhantom) {
-        try {
-          const response = await window.solana.connect({ onlyIfTrusted: false });
-          const publicKey = response.publicKey.toString();
-          
-          pubkeySpan.textContent = `\( {publicKey.slice(0,6)}... \){publicKey.slice(-6)}`;
-          walletInfo.classList.remove('hidden');
-          connectBtn.textContent = 'Connected';
-          connectBtn.disabled = true;
-          connectBtn.classList.add('opacity-70', 'cursor-default');
+    <div class="space-y-3">
+      <input placeholder="From (ETH)" class="w-full bg-black border px-3 py-2 rounded" />
+      <input placeholder="To (Token)" class="w-full bg-black border px-3 py-2 rounded" />
 
-          alert(`Connected to Phantom! Public Key: ${publicKey}`);
-        } catch (err) {
-          console.error(err);
-          alert('Connection failed: ' + (err.message || 'Unknown error'));
-        }
-      } else {
-        alert('Phantom wallet not detected!\nPlease install Phantom: https://phantom.app/');
-      }
-    });
+      <div class="flex justify-between text-xs">
+        <span>Slippage</span>
+        <span>0.5%</span>
+      </div>
 
-    // Auto-connect jika sudah trusted (opsional)
-    window.addEventListener('load', async () => {
-      if (window.solana && window.solana.isPhantom) {
-        try {
-          await window.solana.connect({ onlyIfTrusted: true });
-          const publicKey = window.solana.publicKey.toString();
-          pubkeySpan.textContent = `\( {publicKey.slice(0,6)}... \){publicKey.slice(-6)}`;
-          walletInfo.classList.remove('hidden');
-          connectBtn.textContent = 'Connected (Trusted)';
-          connectBtn.disabled = true;
-        } catch (err) {
-          // silent fail
-        }
-      }
-    });
-  </script>
+      <input type="range" min="0" max="5" value="1" />
+
+      <div class="text-xs opacity-70">⛽ Gas Estimate: ~0.003 ETH</div>
+
+      <button class="w-full bg-green-500 text-black py-2 rounded neon hover:opacity-80">
+        Execute Swap
+      </button>
+    </div>
+  </aside>
+</div>
+
+<!-- TRANSACTIONS -->
+<section class="p-4">
+  <div class="border border-green-500 rounded neon p-4">
+    <h2 class="mb-3 glitch">📜 Live Transactions</h2>
+
+    <table class="w-full text-sm">
+      <thead class="border-b border-green-500">
+        <tr>
+          <th class="text-left">Time</th>
+          <th>Type</th>
+          <th>Price</th>
+          <th>Amount</th>
+        </tr>
+      </thead>
+      <tbody class="opacity-90">
+        <tr>
+          <td>12:01:22</td>
+          <td class="text-green-400">Buy</td>
+          <td>$2,410</td>
+          <td>1.2 ETH</td>
+        </tr>
+        <tr>
+          <td>12:01:09</td>
+          <td class="text-red-400">Sell</td>
+          <td>$2,398</td>
+          <td>0.5 ETH</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- CHART SCRIPT -->
+<script>
+  const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+    layout: {
+      background: { color: '#000000' },
+      textColor: '#39FF14',
+    },
+    grid: {
+      vertLines: { color: '#222' },
+      horzLines: { color: '#222' },
+    },
+    width: document.getElementById('chart').clientWidth,
+    height: 420,
+  });
+
+  const series = chart.addCandlestickSeries({
+    upColor: '#39FF14',
+    downColor: '#8A2BE2',
+    borderVisible: false,
+    wickUpColor: '#39FF14',
+    wickDownColor: '#8A2BE2',
+  });
+
+  series.setData([
+    { time: '2025-02-01', open: 2200, high: 2300, low: 2150, close: 2250 },
+    { time: '2025-02-02', open: 2250, high: 2400, low: 2230, close: 2350 },
+    { time: '2025-02-03', open: 2350, high: 2450, low: 2300, close: 2400 },
+    { time: '2025-02-04', open: 2400, high: 2480, low: 2380, close: 2410 },
+  ]);
+
+  window.addEventListener('resize', () => {
+    chart.applyOptions({ width: document.getElementById('chart').clientWidth });
+  });
+</script>
+
 </body>
-</html>
+    </html>
